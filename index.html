@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rashad Naghiyev - Senior Engineering Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'cyber-violet': '#8b5cf6',
+                        'cyber-cyan': '#06b6d4',
+                        'cyber-purple': '#a855f7',
+                        'cyber-blue': '#3b82f6',
+                        'dark-bg': '#0a0a0f',
+                        'dark-surface': '#111118',
+                        'dark-muted': '#1a1a23',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0f;
+            color: #f8fafc;
+        }
+        
+        .cyber-glow {
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+        
+        .glow-pulse {
+            animation: glow-pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow-pulse {
+            0%, 100% { box-shadow: 0 0 5px currentColor; }
+            50% { box-shadow: 0 0 20px currentColor, 0 0 30px currentColor; }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-dark-bg text-foreground overflow-x-hidden">
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 opacity-20">
+            <div class="absolute inset-0 bg-gradient-to-br from-cyber-violet/10 to-cyber-cyan/10"></div>
+        </div>
+        
+        <div class="relative z-10 grid grid-cols-12 gap-6 w-full max-w-7xl mx-auto px-6">
+            <div class="col-span-12 lg:col-span-6 flex flex-col justify-center space-y-8">
+                <div class="space-y-4">
+                    <h1 class="text-4xl lg:text-6xl font-['Space_Grotesk'] tracking-tight">
+                        <span class="block text-cyber-violet uppercase">RASHAD</span>
+                        <span class="block text-cyber-cyan uppercase">NAGHIYEV</span>
+                    </h1>
+                    
+                    <div class="border-l-2 border-cyber-violet pl-6 space-y-2">
+                        <p class="text-xl lg:text-2xl text-gray-300 font-['Space_Grotesk'] uppercase tracking-wide">
+                            Senior Engineering Manager
+                        </p>
+                        <p class="text-lg lg:text-xl text-gray-400 font-['Space_Grotesk'] uppercase tracking-wide">
+                            Regional Technical Lead - Germany
+                        </p>
+                    </div>
+                </div>
+
+                <p class="text-lg lg:text-xl text-gray-300 max-w-lg leading-relaxed">
+                    Award-winning engineering leader with 9+ years of experience delivering mission-critical systems for Visa, Apple, and Citibank.
+                </p>
+
+                <div class="flex items-center space-x-3">
+                    <div class="w-3 h-3 bg-cyber-cyan glow-pulse"></div>
+                    <span class="text-cyber-cyan uppercase tracking-wide">Available for collaboration</span>
+                </div>
+            </div>
+
+            <div class="col-span-12 lg:col-span-6 flex items-center justify-center">
+                <div class="relative">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-cyber-violet to-cyber-cyan p-[2px]">
+                        <div class="bg-dark-bg h-full w-full"></div>
+                    </div>
+                    <div class="relative w-80 h-96 lg:w-96 lg:h-[480px] bg-gradient-to-br from-cyber-violet/20 to-cyber-cyan/20 flex items-center justify-center">
+                        <span class="text-cyber-violet text-2xl">Profile Image</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="min-h-screen flex items-center py-20 bg-gradient-to-b from-dark-bg to-dark-surface">
+        <div class="w-full max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-12 gap-8 items-center">
+                <div class="col-span-12 lg:col-span-4 space-y-8">
+                    <h2 class="text-3xl lg:text-4xl font-['Space_Grotesk'] text-cyber-cyan uppercase tracking-wide">
+                        About Me
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="group">
+                            <span class="text-2xl lg:text-3xl font-['Space_Grotesk'] font-semibold text-gray-300 group-hover:text-cyber-violet transition-colors duration-300">
+                                ARCHITECT
+                            </span>
+                        </div>
+                        <div class="group">
+                            <span class="text-2xl lg:text-3xl font-['Space_Grotesk'] font-semibold text-gray-300 group-hover:text-cyber-violet transition-colors duration-300">
+                                LEADER
+                            </span>
+                        </div>
+                        <div class="group">
+                            <span class="text-2xl lg:text-3xl font-['Space_Grotesk'] font-semibold text-gray-300 group-hover:text-cyber-violet transition-colors duration-300">
+                                ENGINEER
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-12 lg:col-span-5 space-y-6">
+                    <div class="space-y-6 text-gray-300">
+                        <p class="text-lg leading-relaxed">
+                            With over <span class="text-cyber-cyan font-semibold">9+ years</span> of experience 
+                            in software engineering, I specialize in leading high-impact engineering teams and delivering 
+                            mission-critical systems for <span class="text-cyber-violet font-semibold">global clients</span> 
+                            including <span class="text-cyber-cyan font-semibold">Visa, Apple, and Citibank</span>.
+                        </p>
+                        
+                        <p class="text-lg leading-relaxed">
+                            Currently serving as Regional Technical Lead for Germany at bp, managing 40+ indirect contributors 
+                            and leading cross-functional product delivery across digital mobility platforms.
+                        </p>
+
+                        <p class="text-lg leading-relaxed">
+                            Recognized as Engineer of the Year at Grid Dynamics for architectural excellence and security innovation. 
+                            Led development of Apple's Uplift platform - an enterprise-scale dependency management system supporting 20,000+ repositories.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 pt-6">
+                        <div class="text-center border border-cyber-violet/20 p-4 bg-dark-muted/50">
+                            <div class="text-2xl font-['Space_Grotesk'] text-cyber-cyan font-bold">9+</div>
+                            <div class="text-sm text-gray-400 uppercase tracking-wide">Years Experience</div>
+                        </div>
+                        <div class="text-center border border-cyber-violet/20 p-4 bg-dark-muted/50">
+                            <div class="text-2xl font-['Space_Grotesk'] text-cyber-cyan font-bold">40+</div>
+                            <div class="text-sm text-gray-400 uppercase tracking-wide">Team Members Led</div>
+                        </div>
+                        <div class="text-center border border-cyber-violet/20 p-4 bg-dark-muted/50">
+                            <div class="text-2xl font-['Space_Grotesk'] text-cyber-cyan font-bold">200+</div>
+                            <div class="text-sm text-gray-400 uppercase tracking-wide">Engineers Mentored</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="min-h-screen py-20 bg-gradient-to-b from-dark-bg to-dark-surface">
+        <div class="w-full max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl lg:text-5xl font-['Space_Grotesk'] text-cyber-cyan uppercase tracking-wide mb-4">
+                    Let's Connect
+                </h2>
+                <div class="w-24 h-0.5 bg-cyber-violet mx-auto"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="p-6 border border-gray-600 bg-dark-muted/30 hover:border-cyber-violet transition-all duration-300">
+                    <div class="text-cyber-violet font-medium">Email</div>
+                    <div class="text-gray-300">rashad.naghiyev@gmail.com</div>
+                </div>
+                <div class="p-6 border border-gray-600 bg-dark-muted/30 hover:border-cyber-cyan transition-all duration-300">
+                    <div class="text-cyber-cyan font-medium">LinkedIn</div>
+                    <div class="text-gray-300">linkedin.com/in/rashad-naghiyev</div>
+                </div>
+                <div class="p-6 border border-gray-600 bg-dark-muted/30 hover:border-cyber-purple transition-all duration-300">
+                    <div class="text-cyber-purple font-medium">GitHub</div>
+                    <div class="text-gray-300">github.com/Kreeby</div>
+                </div>
+                <div class="p-6 border border-gray-600 bg-dark-muted/30 hover:border-cyber-blue transition-all duration-300">
+                    <div class="text-cyber-blue font-medium">Location</div>
+                    <div class="text-gray-300">Budapest, Hungary</div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html> 
