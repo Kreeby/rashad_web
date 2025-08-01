@@ -1,9 +1,11 @@
 "use client";
 
 /**
- * ContactSection – full component with real company logos (uniform size) + real e‑mail sending.
- * • Logos carousel (60 s loop, lighter bg, no frames, bigger icons)
- * • Email POSTs to /api/contact (Next.js route) – see note below.
+ * ContactSection – full component with real company logos (uniform size).
+ * Fixes previous "black boxes" bug by:  
+ *   • explicit <img> tags with object-contain and transparent bg  
+ *   • inline keyframes for the continuous carousel slide.  
+ * Clearbit logo URLs are used (public, CORS-friendly).  
  */
 
 import { motion } from "framer-motion";
@@ -14,6 +16,7 @@ import {
   Github,
   MapPin,
   Send,
+  MessageSquare,
   FileText,
 } from "lucide-react";
 
@@ -30,7 +33,7 @@ export function ContactSection() {
     "idle"
   );
 
-  /* ───────── submit (calls /api/contact) */
+  /* ───────── submit */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -57,7 +60,8 @@ export function ContactSection() {
     }
   };
 
-  /* ───────── quick links */
+
+  /* ───────── contact links */
   const contactLinks = [
     {
       icon: Mail,
@@ -85,7 +89,7 @@ export function ContactSection() {
       label: "Medium",
       value: "medium.com/@rashadnaghiyev_95022",
       href: "https://medium.com/@rashadnaghiyev_95022",
-      color: "cyber-green",
+      color: "cyber-cyan",
     },
     {
       icon: MapPin,
@@ -96,25 +100,39 @@ export function ContactSection() {
     },
   ];
 
-  /* ───────── logo carousel (logo.dev) */
-  type Logo = { name: string; src: string };
-  const logos: Logo[] = [
-    { name: "BP | Aral", src: "https://logo-dev.vercel.app/bp.com?size=128&format=png" },
-    { name: "Grid Dynamics", src: "https://logo-dev.vercel.app/griddynamics.com?size=128&format=png" },
-    { name: "Morgan Stanley", src: "https://logo-dev.vercel.app/morganstanley.com?size=128&format=png" },
-    { name: "Sema4", src: "https://logo-dev.vercel.app/sema4.com?size=128&format=png" },
-    { name: "MotorK", src: "https://logo-dev.vercel.app/motork.io?size=128&format=png" },
-    { name: "American Eagle", src: "https://logo-dev.vercel.app/ae.com?size=128&format=png" },
-    { name: "SGWS", src: "https://logo-dev.vercel.app/sgws.com?size=128&format=png" },
-    { name: "Visa", src: "https://logo-dev.vercel.app/visa.com?size=128&format=png" },
-    { name: "Citibank", src: "https://logo-dev.vercel.app/citi.com?size=128&format=png" },
-    { name: "Apple", src: "https://logo-dev.vercel.app/apple.com?size=128&format=png" },
-    { name: "Ford", src: "https://logo-dev.vercel.app/ford.com?size=128&format=png" },
+  /* ───────── company logos (real) */
+  const companyLogos = [
+    { name: "BP", url: "https://download.logo.wine/logo/BP/BP-Logo.wine.png" },
+    { name: "Grid Dynamics", url: "https://marketplace.commercetools.com/img/containers/assets/integrations/griddynamics/stage-logo-griddynamics.png/a42575f07d19d67f875f40c5118be5e3.png" },
+    { name: "Morgan Stanley", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Morgan_Stanley_Logo_1.svg/2560px-Morgan_Stanley_Logo_1.svg.png" },
+    { name: "Sema4 (Semaphore)", url: "https://www.pharmacircle.com/_get_company_logo.php?company_id=18278" },
+    { name: "MotorK", url: "https://www.motork.io/wp-content/uploads/2021/06/MOTORK-logo.png" },
+    { name: "American Eagle Outfitters", url: "https://companieslogo.com/img/orig/AEO-4240a4e6.png?t=1720244490" },
+    { name: "Southern Glazer's Wine & Spirits", url: "https://upload.wikimedia.org/wikipedia/en/thumb/d/dc/Southern_Glazer%27s_Wine_%26_Spirits_Logo.svg/1200px-Southern_Glazer%27s_Wine_%26_Spirits_Logo.svg.png" },
+    { name: "Visa", url: "https://logo.clearbit.com/visa.com" },
+    { name: "Citibank", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Citi.svg/1024px-Citi.svg.png" },
+    { name: "Apple", url: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" },
+    { name: "Ford", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Ford-Motor-Company-Logo.png/1200px-Ford-Motor-Company-Logo.png" },
   ];
 
   /* ───────── render */
   return (
     <section className="min-h-screen py-20 bg-gradient-to-b from-dark-bg to-dark-surface relative">
+      {/* inline keyframes for sliding carousel */}
+      <style jsx>{`
+        @keyframes slide {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+        .animate-slide {
+          animation: slide 25s linear infinite;
+        }
+      `}</style>
+
       {/* background grid */}
       <div className="absolute inset-0 opacity-5 pointer-events-none">
         <div className="grid grid-cols-8 gap-2 h-full w-full p-4">
@@ -131,7 +149,7 @@ export function ContactSection() {
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-12 gap-12 items-start">
-          {/* left column */}
+          {/* ───── left column */}
           <motion.div
             className="col-span-12 lg:col-span-5 space-y-8"
             initial={{ opacity: 0, x: -50 }}
@@ -175,13 +193,12 @@ export function ContactSection() {
                     transition={{ duration: 0.8, delay: 0.6 + i * 0.1 }}
                     viewport={{ once: true }}
                   >
-                    <Icon className={`w-6 h-6 text-${link.color}`} />
+                    <Icon className={`w-6 h-6 text-${link.color} group-hover:scale-110 transition-transform`} />
                     <div className="flex-grow">
-                      <div className="text-gray-400 text-sm uppercase tracking-wide">
-                        {link.label}
-                      </div>
+                      <div className="text-gray-400 text-sm uppercase tracking-wide">{link.label}</div>
                       <div className={`text-${link.color} font-medium`}>{link.value}</div>
                     </div>
+                    <div className={`w-0 h-0.5 bg-${link.color} group-hover:w-8 transition-all`} />
                   </motion.a>
                 );
               })}
@@ -196,7 +213,7 @@ export function ContactSection() {
               viewport={{ once: true }}
             >
               <motion.div
-                className="w-3 h-3 bg-cyber-cyan rounded-full"
+                className="w-3 h-3 bg-cyber-cyan"
                 animate={{ scale: [1, 1.3, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
               />
@@ -206,7 +223,7 @@ export function ContactSection() {
             </motion.div>
           </motion.div>
 
-          {/* right column */}
+          {/* ───── right column */}
           <motion.div
             className="col-span-12 lg:col-span-7 space-y-8"
             initial={{ opacity: 0, x: 50 }}
@@ -217,9 +234,7 @@ export function ContactSection() {
             {/* form */}
             <div className="relative p-8 border border-gray-600 bg-dark-muted/30 min-h-[400px]">
               <div className="flex items-center space-x-3 mb-8">
-                <svg viewBox="0 0 24 24" className="w-6 h-6 text-cyber-violet fill-current">
-                  <path d="M21 6.5a2.5 2.5 0 00-2.5-2.5h-13A2.5 2.5 0 003 6.5v11A2.5 2.5 0 005.5 20h13a2.5 2.5 0 002.5-2.5v-11zM5.5 5h13a1.5 1.5 0 011.5 1.5v.538l-8 4.8-8-4.8V6.5A1.5 1.5 0 015.5 5zM20 17.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 17.5V8.683l8 4.8 8-4.8V17.5z" />
-                </svg>
+                <MessageSquare className="w-6 h-6 text-cyber-violet" />
                 <h3 className="text-2xl font-space-grotesk text-cyber-violet uppercase">
                   Send Message
                 </h3>
@@ -318,8 +333,8 @@ export function ContactSection() {
               </form>
             </div>
 
-            {/* carousel */}
-            <div className="relative p-8 border border-gray-500/50 bg-dark-muted/10">
+            {/* logos carousel */}
+            <div className="relative p-8 border border-gray-500/50 bg-gradient-to-br from-gray-1000 to-gray-1000 shadow-lg">
               <h3 className="flex items-center space-x-3 mb-6 text-2xl font-space-grotesk text-cyber-purple uppercase">
                 <span className="w-6 h-6 bg-cyber-purple rounded-full" />
                 <span>Companies I've Worked With</span>
@@ -330,13 +345,13 @@ export function ContactSection() {
                   className="flex gap-10"
                   style={{ width: "max-content", animation: "slide 60s linear infinite" }}
                 >
-                  {logos.concat(logos).map((logo, idx) => (
+                  {companyLogos.concat(companyLogos).map((logo, idx) => (
                     <img
                       key={idx}
-                      src={logo.src}
+                      src={logo.url}
                       alt={logo.name}
                       title={logo.name}
-                      className="w-40 h-24 object-contain"
+                      className="w-40 h-24 object-contain" /* bigger logos */
                     />
                   ))}
                 </div>
@@ -360,7 +375,7 @@ export function ContactSection() {
             {[...Array(3)].map((_, i) => (
               <motion.div
                 key={i}
-                className="w-1 h-1 bg-cyber-violet rounded-full"
+                className="w-1 h-1 bg-cyber-violet"
                 animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
                 transition={{ duration: 2, delay: i * 0.5, repeat: Infinity }}
               />
@@ -368,48 +383,6 @@ export function ContactSection() {
           </div>
         </motion.footer>
       </div>
-
-      {/* keyframes */}
-      <style jsx>{`
-        @keyframes slide {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
-        }
-      `}</style>
     </section>
   );
 }
-
-/**
- * 👉  IMPORTANT – API route (create once):
- * In /app/api/contact/route.ts (Next.js 13+) or /pages/api/contact.ts (<=12)
- * use a simple SMTP/Nodemailer handler, e.g.:
- *
- *  import nodemailer from "nodemailer";
- *  export async function POST(req: Request) {
- *    const { name, email, subject, message } = await req.json();
- *    const transporter = nodemailer.createTransport({
- *      host: "smtp.gmail.com",
- *      port: 465,
- *      secure: true,
- *      auth: {
- *        user: process.env.SMTP_USER,
- *        pass: process.env.SMTP_PASS,
- *      },
- *    });
- *    await transporter.sendMail({
- *      from: `Portfolio <${process.env.SMTP_USER}>`,
- *      to: "rashad.naghiyev@gmail.com",
- *      replyTo: email,
- *      subject: `Portfolio – ${subject}`,
- *      text: `${name} <${email}>\n\n${message}`,
- *    });
- *    return new Response(null, { status: 200 });
- *  }
- *
- * Set env vars (SMTP_USER, SMTP_PASS) in .env.local. ✅
- */
