@@ -117,7 +117,7 @@ export function ContactSection() {
 
   /* ───────── render */
   return (
-    <section className="min-h-screen py-20 bg-gradient-to-b from-dark-bg to-dark-surface relative">
+    <section className="min-h-screen py-8 sm:py-12 lg:py-20 bg-gradient-to-b from-dark-bg to-dark-surface relative">
       {/* inline keyframes for sliding carousel */}
       <style jsx>{`
         @keyframes slide {
@@ -135,7 +135,7 @@ export function ContactSection() {
 
       {/* background grid */}
       <div className="absolute inset-0 opacity-5 pointer-events-none">
-        <div className="grid grid-cols-8 gap-2 h-full w-full p-4">
+        <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-2 h-full w-full p-4">
           {Array.from({ length: 200 }).map((_, i) => (
             <motion.div
               key={i}
@@ -147,11 +147,11 @@ export function ContactSection() {
         </div>
       </div>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-12 gap-12 items-start">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           {/* ───── left column */}
           <motion.div
-            className="col-span-12 lg:col-span-5 space-y-8"
+            className="w-full lg:col-span-5 space-y-6 lg:space-y-8"
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 1 }}
@@ -160,7 +160,7 @@ export function ContactSection() {
             {/* header */}
             <div className="space-y-4">
               <motion.h2
-                className="text-4xl lg:text-5xl font-space-grotesk text-cyber-cyan uppercase tracking-wide"
+                className="text-3xl sm:text-4xl lg:text-5xl font-space-grotesk text-cyber-cyan uppercase tracking-wide"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.2 }}
@@ -171,7 +171,7 @@ export function ContactSection() {
             </div>
 
             <motion.p
-              className="text-lg text-gray-300 leading-relaxed"
+              className="text-base sm:text-lg text-gray-300 leading-relaxed"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.4 }}
@@ -180,25 +180,25 @@ export function ContactSection() {
             </motion.p>
 
             {/* links */}
-            <div className="space-y-4">
+            <div className="space-y-3 lg:space-y-4">
               {contactLinks.map((link, i) => {
                 const Icon = link.icon;
                 return (
                   <motion.a
                     key={link.label}
                     href={link.href}
-                    className={`group flex items-center space-x-4 p-4 border border-gray-600 bg-dark-muted/30 hover:border-${link.color} transition-all`}
+                    className={`group flex items-center space-x-3 lg:space-x-4 p-3 lg:p-4 border border-gray-600 bg-dark-muted/30 hover:border-${link.color} transition-all`}
                     initial={{ opacity: 0, x: -30 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, delay: 0.6 + i * 0.1 }}
                     viewport={{ once: true }}
                   >
-                    <Icon className={`w-6 h-6 text-${link.color} group-hover:scale-110 transition-transform`} />
-                    <div className="flex-grow">
-                      <div className="text-gray-400 text-sm uppercase tracking-wide">{link.label}</div>
-                      <div className={`text-${link.color} font-medium`}>{link.value}</div>
+                    <Icon className={`w-5 h-5 lg:w-6 lg:h-6 text-${link.color} group-hover:scale-110 transition-transform flex-shrink-0`} />
+                    <div className="flex-grow min-w-0">
+                      <div className="text-gray-400 text-xs lg:text-sm uppercase tracking-wide">{link.label}</div>
+                      <div className={`text-${link.color} font-medium text-sm lg:text-base truncate`}>{link.value}</div>
                     </div>
-                    <div className={`w-0 h-0.5 bg-${link.color} group-hover:w-8 transition-all`} />
+                    <div className={`w-0 h-0.5 bg-${link.color} group-hover:w-6 lg:group-hover:w-8 transition-all flex-shrink-0`} />
                   </motion.a>
                 );
               })}
@@ -206,7 +206,7 @@ export function ContactSection() {
 
             {/* availability */}
             <motion.div
-              className="flex items-center space-x-3 p-4 border border-cyber-cyan/30 bg-cyber-cyan/5"
+              className="flex items-center space-x-3 p-3 lg:p-4 border border-cyber-cyan/30 bg-cyber-cyan/5"
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, delay: 1 }}
@@ -217,7 +217,7 @@ export function ContactSection() {
                 animate={{ scale: [1, 1.3, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
               />
-              <span className="text-cyber-cyan font-space-grotesk uppercase tracking-wide">
+              <span className="text-cyber-cyan font-space-grotesk uppercase tracking-wide text-sm lg:text-base">
                 Available for new opportunities
               </span>
             </motion.div>
@@ -225,23 +225,23 @@ export function ContactSection() {
 
           {/* ───── right column */}
           <motion.div
-            className="col-span-12 lg:col-span-7 space-y-8"
+            className="w-full lg:col-span-7 space-y-6 lg:space-y-8"
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 1, delay: 0.3 }}
             viewport={{ once: true }}
           >
             {/* form */}
-            <div className="relative p-8 border border-gray-600 bg-dark-muted/30 min-h-[400px]">
-              <div className="flex items-center space-x-3 mb-8">
-                <MessageSquare className="w-6 h-6 text-cyber-violet" />
-                <h3 className="text-2xl font-space-grotesk text-cyber-violet uppercase">
+            <div className="relative p-4 sm:p-6 lg:p-8 border border-gray-600 bg-dark-muted/30 min-h-[400px]">
+              <div className="flex items-center space-x-3 mb-6 lg:mb-8">
+                <MessageSquare className="w-5 h-5 lg:w-6 lg:h-6 text-cyber-violet" />
+                <h3 className="text-xl sm:text-2xl font-space-grotesk text-cyber-violet uppercase">
                   Send Message
                 </h3>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
+                <div className="grid grid-cols-1 gap-4 lg:gap-6">
                   <div>
                     <label className="block text-sm text-gray-400 mb-2 uppercase tracking-wide">
                       Name
@@ -285,7 +285,7 @@ export function ContactSection() {
                   <textarea
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    rows={6}
+                    rows={4}
                     className="w-full p-3 bg-dark-bg border border-gray-600 text-white placeholder-gray-500 focus:border-cyber-violet focus:outline-none resize-none"
                     placeholder="Tell me about your project..."
                     required
@@ -294,12 +294,12 @@ export function ContactSection() {
                 <motion.button
                   type="submit"
                   disabled={isSubmitting}
-                  className="group relative w-full p-4 bg-gradient-to-r from-cyber-violet to-cyber-purple text-white font-space-grotesk uppercase tracking-wide hover:from-cyber-purple hover:to-cyber-violet disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
+                  className="group relative w-full p-3 lg:p-4 bg-gradient-to-r from-cyber-violet to-cyber-purple text-white font-space-grotesk uppercase tracking-wide hover:from-cyber-purple hover:to-cyber-violet disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
                   <div className="flex items-center justify-center space-x-3">
-                    <span>
+                    <span className="text-sm lg:text-base">
                       {isSubmitting
                         ? "Sending..."
                         : submitStatus === "success"
@@ -308,7 +308,7 @@ export function ContactSection() {
                         ? "Error – Try Again"
                         : "Send Message"}
                     </span>
-                    <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    <Send className="w-4 h-4 lg:w-5 lg:h-5 group-hover:translate-x-1 transition-transform" />
                   </div>
 
                   {isSubmitting && (
@@ -321,12 +321,12 @@ export function ContactSection() {
                 </motion.button>
 
                 {submitStatus === "success" && (
-                  <motion.div className="mt-4 p-4 bg-cyber-cyan/20 border border-cyber-cyan/30 text-cyber-cyan" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  <motion.div className="mt-4 p-4 bg-cyber-cyan/20 border border-cyber-cyan/30 text-cyber-cyan text-sm lg:text-base" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                     Thank you! Your message has been sent successfully.
                   </motion.div>
                 )}
                 {submitStatus === "error" && (
-                  <motion.div className="mt-4 p-4 bg-red-500/20 border border-red-500/30 text-red-400" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  <motion.div className="mt-4 p-4 bg-red-500/20 border border-red-500/30 text-red-400 text-sm lg:text-base" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                     Sorry, there was an error sending your message. Please try again.
                   </motion.div>
                 )}
@@ -334,15 +334,15 @@ export function ContactSection() {
             </div>
 
             {/* logos carousel */}
-            <div className="relative p-8 border border-gray-500/50 bg-gradient-to-br from-gray-1000 to-gray-1000 shadow-lg">
-              <h3 className="flex items-center space-x-3 mb-6 text-2xl font-space-grotesk text-cyber-purple uppercase">
-                <span className="w-6 h-6 bg-cyber-purple rounded-full" />
+            <div className="relative p-4 sm:p-6 lg:p-8 border border-gray-500/50 bg-gradient-to-br from-gray-1000 to-gray-1000 shadow-lg">
+              <h3 className="flex items-center space-x-3 mb-4 lg:mb-6 text-lg sm:text-xl lg:text-2xl font-space-grotesk text-cyber-purple uppercase">
+                <span className="w-4 h-4 lg:w-6 lg:h-6 bg-cyber-purple rounded-full" />
                 <span>Companies I've Worked With</span>
               </h3>
 
               <div className="overflow-hidden py-4">
                 <div
-                  className="flex gap-10"
+                  className="flex gap-6 sm:gap-8 lg:gap-10"
                   style={{ width: "max-content", animation: "slide 60s linear infinite" }}
                 >
                   {companyLogos.concat(companyLogos).map((logo, idx) => (
@@ -351,7 +351,7 @@ export function ContactSection() {
                       src={logo.url}
                       alt={logo.name}
                       title={logo.name}
-                      className="w-40 h-24 object-contain" /* bigger logos */
+                      className="w-24 h-16 sm:w-32 sm:h-20 lg:w-40 lg:h-24 object-contain" /* responsive logo sizes */
                     />
                   ))}
                 </div>
@@ -362,13 +362,13 @@ export function ContactSection() {
 
         {/* footer */}
         <motion.footer
-          className="mt-20 pt-8 border-t border-gray-600 text-center"
+          className="mt-12 lg:mt-20 pt-6 lg:pt-8 border-t border-gray-600 text-center"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.5 }}
           viewport={{ once: true }}
         >
-          <p className="text-gray-400 font-space-grotesk uppercase tracking-wide">
+          <p className="text-gray-400 font-space-grotesk uppercase tracking-wide text-sm lg:text-base">
             © 2025 Rashad Naghiyev. Crafted with precision.
           </p>
           <div className="flex justify-center space-x-4 mt-4">
