@@ -1,22 +1,68 @@
 "use client";
 
+/**
+ * ExperienceSection – full, self-contained.
+ * • Globe view (with onMarkerHover tooltip).
+ * • Timeline view (grouped Grid Dynamics sub-projects).
+ * Updated 2025-07-31 per latest user feedback.
+ */
+
 import { useState, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
-import { EarthGlobe, Location } from "./EarthGlobe";
+import { MapPin } from "lucide-react";
+import { EarthGlobe, type Location } from "./EarthGlobe";
+
+interface TimelineSubProject {
+  title: string;
+  period: string;
+  achievements: string[];
+}
+
+interface TimelineCard {
+  company: string;
+  role: string;
+  period: string;
+  location: string;
+  logo: string;
+  achievements: string[];
+  color: string;
+  subProjects?: TimelineSubProject[];
+}
 
 export function ExperienceSection() {
-  const [viewMode, setViewMode] = useState<"globe" | "grid">("globe");
+  /* ───────── state */
+  const [viewMode, setViewMode] = useState<"globe" | "timeline">("globe");
   const [hoveredLocation, setHoveredLocation] = useState<string | null>(null);
+  const [tooltip, setTooltip] = useState<{ id: string; x: number; y: number } | null>(null);
 
-  // Memoize the hover handler to prevent unnecessary re-renders
+  /* ───────── handlers */
   const handleLocationHover = useCallback((id: string | null) => {
     setHoveredLocation(id);
+    if (!id) setTooltip(null);
   }, []);
 
-  // Your work and residence locations
-  const locations: Location[] = useMemo( 
+  const handleMarkerHover = useCallback((info: { id: string; x: number; y: number } | null) => {
+    setTooltip(info);
+    if (info) setHoveredLocation(info.id);
+  }, []);
+
+  /* ───────── background stars */
+  const stars = useMemo(
+    () =>
+      Array.from({ length: 100 }).map((_, i) => ({
+        id: i,
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        size: Math.random() * 2 + 1,
+        delay: Math.random() * 5,
+        duration: 8 + Math.random() * 4,
+      })),
+    []
+  );
+
+  /* ───────── locations (markers on globe) */
+  const locations: Location[] = useMemo(
     () => [
-      // Major work locations (large markers)
       {
         id: "bp-budapest",
         name: "BP Budapest",
@@ -28,535 +74,427 @@ export function ExperienceSection() {
         role: "Senior Engineering Manager | Regional Technical Lead – Germany",
         period: "06/2025 - Present",
         achievements: [
-          "Leading engineering efforts across Germany region for digital mobility platforms",
-          "Managing 40+ indirect contributors across multiple products and teams",
-          "Accountable for cross-product delivery and architectural consistency"
+          "Leading engineering efforts across Germany region",
+          "Managing 40+ indirect contributors",
+          "Driving architectural consistency",
         ],
         type: "work",
-        size: "large"
+        size: "large",
       },
       {
-        id: "grid-dynamics-warsaw",
-        name: "Grid Dynamics Warsaw",
+        id: "grid-dynamics",
+        name: "Grid Dynamics (Warsaw)",
         city: "Warsaw",
         country: "Poland",
         lat: 52.2297,
         lng: 21.0122,
         company: "Grid Dynamics",
         role: "Engineering Manager | Technical Lead",
-        period: "2022 - 2025",
-        achievements: [
-          "Led engineering teams for Visa, Apple, and American Eagle Outfitters",
-          "Managed Visa's commercial card authentication platform with Kafka-based services",
-          "Delivered secure MongoDB migration framework for Southern Glazers ECS Program"
-        ],
+        period: "05/2022 - 05/2025",
+        achievements: ["Led Visa, Apple, AEO & SGWS squads", "Engineer of the Year 2023"],
         type: "work",
-        size: "large"
+        size: "large",
+      },
+      // client sites via GD (corrected periods)
+      {
+        id: "aeo-philadelphia",
+        name: "AEO Philadelphia",
+        city: "Philadelphia",
+        country: "USA",
+        lat: 39.9526,
+        lng: -75.1652,
+        company: "AEO (via GD)",
+        role: "Technical Lead",
+        period: "2022 - 2023",
+        achievements: ["Loyalty platform re-architecture"],
+        type: "work",
+        size: "medium",
+      },
+      {
+        id: "southern-glazers",
+        name: "SGWS Miami",
+        city: "Miami",
+        country: "USA",
+        lat: 25.7617,
+        lng: -80.1918,
+        company: "SGWS (via GD)",
+        role: "Technical Lead",
+        period: "2023",
+        achievements: ["Secure MongoDB migration"],
+        type: "work",
+        size: "medium",
       },
       {
         id: "visa-san-ramon",
         name: "Visa San Ramon",
         city: "San Ramon",
-        country: "United States",
+        country: "USA",
         lat: 37.7799,
-        lng: -121.9780,
-        company: "Visa (via Grid Dynamics)",
+        lng: -121.978,
+        company: "Visa (via GD)",
         role: "Technical Lead",
-        period: "2022 - 2025",
-        achievements: [
-          "Managed commercial card authentication platform",
-          "Built Kafka-based real-time services with 5+ engineers",
-          "Secured 2-year client contract extension"
-        ],
+        period: "2023 - 2024",
+        achievements: ["Commercial card authentication platform"],
         type: "work",
-        size: "large"
+        size: "medium",
       },
       {
         id: "apple-seattle",
         name: "Apple Seattle",
         city: "Seattle",
-        country: "United States",
+        country: "USA",
         lat: 47.6062,
         lng: -122.3321,
-        company: "Apple (via Grid Dynamics)",
+        company: "Apple (via GD)",
         role: "Backend Lead Contractor",
-        period: "2022 - 2025",
-        achievements: [
-          "Collaborated with Apple architects on JVM tuning and latency optimizations",
-          "Led microservice hardening and performance improvements",
-          "Championed PoC-driven engineering culture"
-        ],
+        period: "2024 - 2025",
+        achievements: ["JVM tuning & latency optimisations"],
         type: "work",
-        size: "large"
+        size: "medium",
       },
+      // pre-GD
       {
-        id: "aeo-philadelphia",
-        name: "American Eagle Outfitters",
-        city: "Philadelphia",
-        country: "United States",
-        lat: 39.9526,
-        lng: -75.1652,
-        company: "American Eagle Outfitters (via Grid Dynamics)",
-        role: "Technical Lead",
-        period: "2022 - 2025",
-        achievements: [
-          "Directed re-architecture of Loyalty platform",
-          "Improved JVM performance and technical scalability",
-          "Refactored Returns & Exchanges backend services"
-        ],
-        type: "work",
-        size: "large"
-      },
-      // Medium work locations
-      {
-        id: "re-partners-citibank",
+        id: "re-partners",
         name: "Re-Partners (Citibank)",
-        city: "New York",
-        country: "United States",
+        city: "Remote",
+        country: "USA",
         lat: 40.7128,
-        lng: -74.0060,
+        lng: -74.006,
         company: "Re-Partners",
-        role: "Senior Software Engineer (Fixed Risk Management – Citibank)",
-        period: "06/2021 - 01/2022",
-        achievements: [
-          "Designed optimized gRPC communication for FX systems",
-          "Implemented backpressure and custom serialization for high-load scenarios",
-          "Fixed Risk Management systems for Citibank"
-        ],
+        role: "Senior Software Engineer",
+        period: "01/2022 - 05/2022",
+        achievements: ["Optimised gRPC for FX risk"],
         type: "work",
-        size: "medium"
+        size: "medium",
       },
       {
         id: "varteq-sema4",
         name: "VARTEQ (Sema4)",
-        city: "New York",
-        country: "United States",
+        city: "Remote",
+        country: "USA",
         lat: 40.7128,
-        lng: -74.0060,
-        company: "VARTEQ Inc. (Client: Sema4)",
+        lng: -74.006,
+        company: "VARTEQ Inc.",
         role: "Senior Software Engineer",
-        period: "01/2022 - 05/2022",
-        achievements: [
-          "Developed backend services for predictive health analytics platform",
-          "Designed custom validation service for medical files",
-          "Co-developed database schema using PostgreSQL inheritance"
-        ],
+        period: "06/2021 - 01/2022",
+        achievements: ["Predictive health analytics backend"],
         type: "work",
-        size: "medium"
+        size: "medium",
       },
-      {
-        id: "southern-glazers",
-        name: "Southern Glazers",
-        city: "Miami",
-        country: "United States",
-        lat: 25.7617,
-        lng: -80.1918,
-        company: "Southern Glazer's Wine & Spirits (via Grid Dynamics)",
-        role: "Technical Lead",
-        period: "2022 - 2025",
-        achievements: [
-          "Delivered secure MongoDB migration framework for ECS Program",
-          "Replaced vulnerable third-party libraries",
-          "Built inventory management systems"
-        ],
-        type: "work",
-        size: "medium"
-      },
-      // Residence locations
-      {
-        id: "budapest-residence",
-        name: "Budapest",
-        city: "Budapest",
-        country: "Hungary",
-        lat: 47.4979,
-        lng: 19.0402,
-        company: "Current Residence",
-        role: "Living & Working",
-        period: "06/2025 - Present",
-        achievements: [
-          "Leading remote teams across Europe",
-          "Contributing to global technical initiatives",
-          "Building international professional network"
-        ],
-        type: "residence",
-        size: "medium"
-      },
-      {
-        id: "warsaw-residence",
-        name: "Warsaw",
-        city: "Warsaw",
-        country: "Poland",
-        lat: 52.2297,
-        lng: 21.0122,
-        company: "Previous Residence",
-        role: "Living & Working",
-        period: "2022 - 2025",
-        achievements: [
-          "Led European technical operations",
-          "Managed cross-border development teams",
-          "Established regional technical partnerships"
-        ],
-        type: "residence",
-        size: "small"
-      },
-      {
-        id: "baku-residence",
-        name: "Baku",
-        city: "Baku",
-        country: "Azerbaijan",
-        lat: 40.4093,
-        lng: 49.8671,
-        company: "Previous Residence",
-        role: "Living & Working",
-        period: "2016 - 2021",
-        achievements: [
-          "Led regional technical initiatives",
-          "Managed local development teams",
-          "Established technical infrastructure"
-        ],
-        type: "residence",
-        size: "small"
-      }
+      // residences
+      { id: "budapest-residence", name: "Budapest", city: "Budapest", country: "Hungary", lat: 47.4979, lng: 19.0402, company: "Current Residence", role: "Living & Working", period: "06/2025 - Present", achievements: [], type: "residence", size: "medium" },
+      { id: "warsaw-residence", name: "Warsaw", city: "Warsaw", country: "Poland", lat: 52.2297, lng: 21.0122, company: "Previous Residence", role: "Living & Working", period: "2022 - 2025", achievements: [], type: "residence", size: "small" },
+      { id: "baku-residence", name: "Baku", city: "Baku", country: "Azerbaijan", lat: 40.4093, lng: 49.8671, company: "Previous Residence", role: "Living & Working", period: "2016 - 2021", achievements: [], type: "residence", size: "small" },
     ],
-    [],
+    []
   );
 
+  /* ───────── timeline cards */
+  const timelineCards: TimelineCard[] = useMemo(() => {
+    const find = (id: string) => locations.find((l) => l.id === id)!;
+
+    const gridSubs = [
+      "aeo-philadelphia", // 2022-2023
+      "southern-glazers", // 2023
+      "visa-san-ramon",   // 2023-2024
+      "apple-seattle",    // 2024-2025
+    ];
+
+    return [
+      // bp / aral
+      {
+        company: find("bp-budapest").company,
+        role: find("bp-budapest").role,
+        period: find("bp-budapest").period,
+        location: "Budapest, Hungary",
+        logo: "⛽",
+        achievements: find("bp-budapest").achievements,
+        color: "cyber-violet",
+      },
+      // grid dynamics (with ordered sub-projects)
+      {
+        company: find("grid-dynamics").company,
+        role: find("grid-dynamics").role,
+        period: find("grid-dynamics").period,
+        location: "Warsaw, Poland",
+        logo: "🔲",
+        achievements: find("grid-dynamics").achievements,
+        color: "cyber-cyan",
+        subProjects: gridSubs.map((sid) => {
+          const l = find(sid);
+          return { title: l.company, period: l.period, achievements: l.achievements };
+        }),
+      },
+      // Re-Partners
+      {
+        company: find("re-partners").company,
+        role: find("re-partners").role,
+        period: find("re-partners").period,
+        location: "Remote, USA",
+        logo: "💳",
+        achievements: find("re-partners").achievements,
+        color: "cyber-purple",
+      },
+      // VARTEQ (Sema4)
+      {
+        company: find("varteq-sema4").company,
+        role: find("varteq-sema4").role,
+        period: find("varteq-sema4").period,
+        location: "Remote, USA",
+        logo: "🧬",
+        achievements: find("varteq-sema4").achievements,
+        color: "cyber-blue",
+      },
+      // New: Various roles in Baku
+      {
+        company: "Various Software Engineering Roles",
+        role: "Software Engineer",
+        period: "2016 - 2021",
+        location: "Baku, Azerbaijan",
+        logo: "💻",
+        achievements: ["Full-stack development across multiple local companies"],
+        color: "cyber-purple",
+      },
+    ];
+  }, [locations]);
+
+  const metrics = useMemo(
+    () => [
+      { number: "3", label: "CONTINENTS" },
+      { number: "8", label: "CITIES" },
+      { number: "10+", label: "COMPANIES" },
+      { number: "9+", label: "YEARS GLOBAL" },
+    ],
+    []
+  );
+
+  /* ───────── render */
   return (
-    <section className="min-h-screen py-20 bg-dark-bg relative overflow-hidden">
-      {/* Background Stars - Fixed position with much slower animation */}
+    <section className="min-h-screen py-20 bg-gradient-to-b from-dark-surface to-dark-bg relative overflow-hidden">
+      {/* background pattern */}
+      <div className="absolute inset-0 opacity-5 pointer-events-none">
+        <div className="grid grid-cols-6 gap-4 h-full w-full p-8">
+          {Array.from({ length: 150 }).map((_, i) => (
+            <div key={i} className="border border-cyber-violet" />
+          ))}
+        </div>
+      </div>
+
+      {/* static stars */}
       <div className="fixed inset-0 pointer-events-none">
-        {Array.from({ length: 100 }).map((_, i) => (
+        {stars.map((s) => (
           <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-white rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              opacity: [0, 1, 0],
-              scale: [0, 1, 0],
-            }}
-            transition={{
-              duration: 8 + Math.random() * 4, // Much slower animation
-              repeat: Infinity,
-              delay: Math.random() * 5, // Longer delays
-            }}
+            key={s.id}
+            className="absolute bg-white rounded-full"
+            style={{ left: `${s.left}%`, top: `${s.top}%`, width: s.size, height: s.size }}
+            animate={{ opacity: [0, 1, 0], scale: [0, 1, 0] }}
+            transition={{ duration: s.duration, repeat: Infinity, delay: s.delay }}
           />
         ))}
       </div>
 
-      {/* Sun Light Effect - Fixed position */}
+      {/* sun glow */}
       <div className="fixed top-10 right-10 w-32 h-32 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full blur-xl opacity-30 pointer-events-none" />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6">
-        {/* Section Header */}
+      <div className="relative z-10 max-w-7xl mx-auto px-6">
+        {/* header */}
         <motion.div
-          className="text-center mb-8"
-          initial={{ opacity: 0, y: 30 }}
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-4xl lg:text-5xl font-space-grotesk text-cyber-cyan uppercase tracking-wide mb-4">
-            Global Experience
-          </h2>
-          <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-            My journey spans across continents, working with world-class companies
-            and delivering mission-critical systems that impact millions of users
-            worldwide.
-          </p>
+          <h2 className="text-4xl lg:text-5xl font-space-grotesk text-cyber-cyan uppercase tracking-wide mb-4">Experience</h2>
+          <div className="w-24 h-0.5 bg-cyber-violet mx-auto" />
         </motion.div>
 
-        {/* View Toggle */}
-        <div className="flex justify-center mb-6">
-          <button
-            onClick={() => setViewMode("globe")}
-            className={`px-4 py-2 rounded-l border ${
-              viewMode === "globe"
-                ? "bg-cyber-cyan text-black border-cyber-cyan"
-                : "bg-gray-700 text-white border-gray-600"
-            }`}
-          >
-            Globe View
-          </button>
-          <button
-            onClick={() => setViewMode("grid")}
-            className={`px-4 py-2 rounded-r border ${
-              viewMode === "grid"
-                ? "bg-cyber-cyan text-black border-cyber-cyan"
-                : "bg-gray-700 text-white border-gray-600"
-            }`}
-          >
-            Grid View
-          </button>
+        {/* view toggle */}
+        <div className="flex justify-center mb-12">
+          <div className="flex bg-dark-surface/50 border border-gray-600 p-1">
+            {( ["globe", "timeline"] as const ).map((v) => (
+              <button
+                key={v}
+                onClick={() => setViewMode(v)}
+                className={`px-6 py-3 font-space-grotesk transition-all ${viewMode === v ? "bg-cyber-cyan text-black" : "text-gray-300 hover:text-white"}`}
+              >
+                {v === "globe" ? "Globe View" : "Timeline View"}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Main Content */}
-        <div className="relative flex justify-center items-center gap-8 px-6 min-h-[1200px]">
-          {/* Instructions + Legend */}
-          {viewMode === "globe" && (
+        {viewMode === "globe" ? (
+          /* ───────── Globe view */
+          <div className="relative flex justify-center items-center gap-8 px-6 min-h-[1000px]">
+            {/* instructions */}
             <motion.div
-              className="absolute left-6 top-6 flex-shrink-0 p-4 border border-white rounded-lg bg-dark-surface text-white max-w-xs space-y-4 z-10"
+              className="absolute left-6 top-6 p-4 border border-gray-600 bg-dark-surface text-white max-w-xs space-y-4 z-10"
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 1 }}
-              viewport={{ once: true }}
             >
-              {/* Instructions */}
-              <div>
-                <h3 className="text-cyber-cyan font-semibold mb-2">INSTRUCTIONS</h3>
-                <ul className="text-sm space-y-1">
-                  <li>• Drag to rotate the globe</li>
-                  <li>• Scroll to zoom in/out</li>
-                  <li>• Hover markers for details</li>
-                  <li>• Auto-rotation is enabled</li>
-                </ul>
-              </div>
-
-              {/* Legend */}
-              <div className="border-t border-white pt-4">
-                <h3 className="text-cyber-cyan font-semibold mb-2">LEGEND</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <span className="w-3 h-3 bg-cyber-violet rounded-full" />
-                    <span className="text-sm">Major Companies</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="w-3 h-3 bg-cyber-cyan rounded-full" />
-                    <span className="text-sm">Work Locations</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="w-3 h-3 bg-cyber-pink rounded-full" />
-                    <span className="text-sm">Living Places</span>
-                  </div>
+              <h3 className="text-cyber-cyan font-space-grotesk font-semibold mb-2">INSTRUCTIONS</h3>
+              <ul className="text-sm space-y-1 font-space-grotesk">
+                <li>• Drag to rotate the globe</li>
+                <li>• Scroll to zoom in/out</li>
+                <li>• Hover markers for details</li>
+                <li>• Auto-rotation is enabled</li>
+              </ul>
+              <div className="border-t border-gray-600 pt-4">
+                <h3 className="text-cyber-cyan font-space-grotesk font-semibold mb-2">LEGEND</h3>
+                <div className="space-y-2 font-space-grotesk text-sm">
+                  <div className="flex items-center space-x-2"><span className="w-3 h-3 bg-cyber-violet" /> <span>Major Companies</span></div>
+                  <div className="flex items-center space-x-2"><span className="w-3 h-3 bg-cyber-cyan" /> <span>Work Locations</span></div>
+                  <div className="flex items-center space-x-2"><span className="w-3 h-3 bg-cyber-purple" /> <span>Living Places</span></div>
                 </div>
               </div>
             </motion.div>
-          )}
 
-          {/* Hover Message */}
-          {viewMode === "globe" && (
-            <motion.div
-              className="absolute right-6 top-6 flex-shrink-0 p-4 border border-white rounded-lg bg-dark-surface text-white max-w-xs z-10"
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1 }}
-              viewport={{ once: true }}
-            >
-              <p className="text-sm">Hover over a location marker on the globe to see details</p>
-            </motion.div>
-          )}
-
-          {/* Globe / Grid Pane - Centered */}
-          <motion.div
-            className="relative w-full max-w-6xl h-[800px] lg:h-[1000px] flex items-center justify-center"
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1 }}
-            viewport={{ once: true }}
-          >
-            {viewMode === "globe" ? (
-              <EarthGlobe
-                locations={locations}
-                onLocationHover={handleLocationHover}
-                hoveredLocation={hoveredLocation}
-              />
-            ) : (
-              <div className="w-full h-full overflow-y-auto">
-                {/* Timeline Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-4">
-                  {locations
-                    .filter(loc => loc.type === 'work')
-                    .sort((a, b) => {
-                      // Sort by period (most recent first)
-                      const getYear = (period: string) => {
-                        const year = period.match(/\d{4}/);
-                        return year ? parseInt(year[0]) : 0;
-                      };
-                      return getYear(b.period) - getYear(a.period);
-                    })
-                    .map((location, index) => (
-                      <motion.div
-                        key={location.id}
-                        className="relative group"
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: index * 0.1 }}
-                        viewport={{ once: true }}
-                        whileHover={{ y: -5 }}
-                      >
-                        {/* Timeline Card */}
-                        <div className="relative p-6 border border-gray-600 bg-dark-surface/50 backdrop-blur-sm rounded-lg hover:border-cyber-cyan transition-all duration-300">
-                          {/* Gradient Background */}
-                          <div className="absolute inset-0 bg-gradient-to-br from-cyber-cyan/5 to-cyber-violet/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
-                          
-                          {/* Content */}
-                          <div className="relative z-10">
-                            {/* Header */}
-                            <div className="flex items-start justify-between mb-4">
-                              <div>
-                                <h3 className="text-xl font-space-grotesk text-cyber-cyan font-semibold mb-1">
-                                  {location.company}
-                                </h3>
-                                <p className="text-sm text-gray-400 uppercase tracking-wide">
-                                  {location.city}, {location.country}
-                                </p>
-                              </div>
-                              <div className="text-right">
-                                <span className="inline-block px-3 py-1 bg-cyber-cyan/20 text-cyber-cyan text-xs font-medium rounded-full border border-cyber-cyan/30">
-                                  {location.size === 'large' ? 'Major' : 'Key'}
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Role & Period */}
-                            <div className="mb-4">
-                              <h4 className="text-lg text-white font-medium mb-1">
-                                {location.role}
-                              </h4>
-                              <p className="text-sm text-cyber-violet font-medium">
-                                {location.period}
-                              </p>
-                            </div>
-
-                            {/* Achievements */}
-                            <div className="space-y-2">
-                              {location.achievements.map((achievement, i) => (
-                                <div key={i} className="flex items-start space-x-3">
-                                  <div className="w-1.5 h-1.5 bg-cyber-cyan rounded-full mt-2 flex-shrink-0" />
-                                  <p className="text-sm text-gray-300 leading-relaxed">
-                                    {achievement}
-                                  </p>
-                                </div>
-                              ))}
-                            </div>
-
-                            {/* Location Badge */}
-                            <div className="mt-4 pt-4 border-t border-gray-600">
-                              <div className="flex items-center space-x-2">
-                                <div className="w-2 h-2 bg-cyber-cyan rounded-full" />
-                                <span className="text-xs text-gray-400 uppercase tracking-wide">
-                                  {location.city}, {location.country}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Hover Effect */}
-                          <div className="absolute inset-0 border-2 border-cyber-cyan/0 group-hover:border-cyber-cyan/30 rounded-lg transition-all duration-300" />
-                        </div>
-                      </motion.div>
-                    ))}
-                </div>
-
-                {/* Residence Section */}
-                <div className="mt-8 p-4">
-                  <h3 className="text-2xl font-space-grotesk text-cyber-violet mb-6 text-center">
-                    Living & Working Locations
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {locations
-                      .filter(loc => loc.type === 'residence')
-                      .sort((a, b) => {
-                        const getYear = (period: string) => {
-                          const year = period.match(/\d{4}/);
-                          return year ? parseInt(year[0]) : 0;
-                        };
-                        return getYear(b.period) - getYear(a.period);
-                      })
-                      .map((location, index) => (
-                        <motion.div
-                          key={location.id}
-                          className="relative group"
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          whileInView={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.5, delay: index * 0.1 }}
-                          viewport={{ once: true }}
-                          whileHover={{ scale: 1.05 }}
-                        >
-                          <div className="p-4 border border-gray-600 bg-dark-surface/30 rounded-lg hover:border-cyber-violet transition-all duration-300">
-                            <div className="text-center">
-                              <h4 className="text-lg font-space-grotesk text-cyber-violet font-semibold mb-2">
-                                {location.city}
-                              </h4>
-                              <p className="text-sm text-gray-400 mb-2">
-                                {location.country}
-                              </p>
-                              <p className="text-xs text-cyber-violet font-medium">
-                                {location.period}
-                              </p>
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))}
-                  </div>
-                </div>
-              </div>
+            {/* empty-hover prompt */}
+            {!tooltip && (
+              <motion.div
+                className="absolute right-6 top-6 p-4 border border-gray-600 bg-dark-surface text-white max-w-xs z-10"
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1 }}
+              >
+                <p className="text-sm font-space-grotesk">Hover a marker to see details</p>
+              </motion.div>
             )}
-          </motion.div>
 
-          {/* Metrics Boxes */}
-          {viewMode === "globe" && (
-            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-4 z-10">
-              {[
-                { number: "3", label: "CONTINENTS" },
-                { number: "8", label: "CITIES" },
-                { number: "10+", label: "COMPANIES" },
-                { number: "9+", label: "YEARS GLOBAL" },
-              ].map((metric, i) => (
+            {/* globe */}
+            <motion.div
+              className="relative w-full max-w-6xl h-[800px] lg:h-[1000px] flex items-center justify-center"
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1 }}
+            >
+              <EarthGlobe locations={locations} onLocationHover={handleLocationHover} onMarkerHover={handleMarkerHover} />
+            </motion.div>
+
+            {/* metrics */}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-4 z-10">
+              {metrics.map((m, i) => (
                 <motion.div
                   key={i}
-                  className="px-4 py-3 border border-white rounded-lg text-center bg-dark-surface"
-                  whileHover={{ scale: 1.05, borderColor: "#06b6d4" }}
+                  className="px-4 py-3 border border-gray-600 text-center bg-dark-surface hover:border-cyber-violet"
+                  whileHover={{ scale: 1.05 }}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  viewport={{ once: true }}
                 >
-                  <div className="text-2xl font-bold text-cyber-cyan">{metric.number}</div>
-                  <div className="text-xs text-white uppercase tracking-wide">{metric.label}</div>
+                  <div className="text-2xl font-space-grotesk font-bold text-cyber-cyan">{m.number}</div>
+                  <div className="text-xs font-space-grotesk text-white uppercase tracking-wide">{m.label}</div>
                 </motion.div>
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          /* ───────── Timeline view */
+          <div className="relative">
+            <div className="absolute left-1/2 -translate-x-1/2 w-0.5 h-full bg-gradient-to-b from-cyber-violet via-cyber-cyan to-cyber-purple" />
+
+            <div className="space-y-16">
+              {timelineCards.map((card, idx) => (
+                <motion.div
+                  key={card.company}
+                  className={`relative grid grid-cols-12 gap-8 items-start ${idx % 2 === 0 ? "" : "lg:flex-row-reverse"}`}
+                  initial={{ opacity: 0, x: idx % 2 === 0 ? -100 : 100 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 1, delay: idx * 0.2 }}
+                  viewport={{ once: true }}
+                >
+                  {/* dot */}
+                  <div className="absolute left-1/2 -translate-x-1/2 z-20">
+                    <motion.div className={`w-6 h-6 bg-${card.color} border-4 border-dark-bg`} whileHover={{ scale: 1.5 }} />
+                  </div>
+
+                  {/* card */}
+                  <motion.div
+                    className={`col-span-12 lg:col-span-5 ${idx % 2 === 0 ? "lg:col-start-1" : "lg:col-start-8"}`}
+                    whileHover={{ scale: 1.02, y: -5 }}
+                  >
+                    <div className="relative p-6 border border-gray-600 bg-dark-muted/50 group hover:border-cyber-violet">
+                      <div className={`absolute inset-0 bg-${card.color}/5 opacity-0 group-hover:opacity-100`} />
+
+                      <div className="relative z-10 space-y-4">
+                        {/* header */}
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="text-3xl">{card.logo}</div>
+                            <div>
+                              <h3 className={`text-xl font-space-grotesk text-${card.color} font-semibold`}>{card.company}</h3>
+                              <p className="text-gray-300 font-space-grotesk font-medium">{card.role}</p>
+                            </div>
+                          </div>
+                          <div className={`text-${card.color} font-space-grotesk text-sm uppercase tracking-wide`}>{card.period}</div>
+                        </div>
+
+                        {/* location */}
+                        <div className="flex items-center space-x-2">
+                          <MapPin className="w-4 h-4 text-gray-400" />
+                          <span className="text-gray-400 text-sm font-space-grotesk">{card.location}</span>
+                        </div>
+
+                        {/* achievements */}
+                        <ul className="space-y-2 list-disc list-inside text-gray-300 text-sm font-space-grotesk">
+                          {card.achievements.map((a, i) => (
+                            <li key={i}>{a}</li>
+                          ))}
+                        </ul>
+
+                        {/* sub-projects */}
+                        {card.subProjects && (
+                          <div className="pt-4 border-t border-gray-600 space-y-4">
+                            {card.subProjects.map((sp, i) => (
+                              <div key={i} className="space-y-1">
+                                <div className="flex items-center justify-between">
+                                  <span className="font-medium text-cyber-cyan">{sp.title}</span>
+                                  <span className="text-xs text-gray-400 uppercase">{sp.period}</span>
+                                </div>
+                                <ul className="list-disc list-inside text-gray-400 text-xs space-y-1">
+                                  {sp.achievements.map((ach, k) => (
+                                    <li key={k}>{ach}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* spacer */}
+                  <div className={`hidden lg:block col-span-5 ${idx % 2 === 0 ? "col-start-8" : "col-start-1"}`} />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Hover Tooltip */}
-      {hoveredLocation && viewMode === "globe" && (
+      {/* tooltip */}
+      {tooltip && viewMode === "globe" && (
         <motion.div
-          className="fixed z-50 bg-dark-surface border border-cyber-cyan/30 p-4 rounded-lg shadow-2xl max-w-sm"
-          style={{ left: "50%", top: "20%", transform: "translate(-50%, -50%)" }}
+          className="fixed z-50 bg-dark-surface border border-cyber-cyan/30 p-4 shadow-2xl max-w-sm"
+          style={{ left: tooltip.x, top: tooltip.y - 20, transform: "translate(-50%,-100%)" }}
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
         >
           {(() => {
-            const loc = locations.find((l) => l.id === hoveredLocation);
+            const loc = locations.find((l) => l.id === tooltip.id);
             if (!loc) return null;
             return (
-              <div className="space-y-3">
-                <h3 className="text-lg text-cyber-cyan font-semibold">
-                  {loc.company}
-                </h3>
-                <p className="text-sm text-gray-400 uppercase tracking-wide">
+              <div className="space-y-2">
+                <h3 className="text-lg font-space-grotesk text-cyber-cyan font-semibold">{loc.company}</h3>
+                <p className="text-sm text-gray-400 uppercase tracking-wide font-space-grotesk">
                   {loc.city}, {loc.country}
                 </p>
-                <p className="text-sm text-cyber-violet font-medium">
-                  {loc.role}
-                </p>
-                <p className="text-xs text-gray-500 uppercase tracking-wide">
-                  {loc.period}
-                </p>
-                <div className="space-y-2">
-                  {loc.achievements.slice(0, 2).map((a, i) => (
-                    <div key={i} className="flex items-start space-x-2">
-                      <div className="w-1 h-1 bg-cyber-cyan mt-2 flex-shrink-0" />
-                      <p className="text-xs text-gray-300">{a}</p>
-                    </div>
-                  ))}
-                </div>
+                <p className="text-sm text-cyber-violet font-space-grotesk font-medium">{loc.role}</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wide font-space-grotesk">{loc.period}</p>
               </div>
             );
           })()}

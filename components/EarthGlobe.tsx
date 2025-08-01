@@ -1,6 +1,17 @@
-import { useEffect, useRef } from 'react';
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+"use client";
+
+/**
+ * EarthGlobe 2025-07-31h (finished)
+ * ────────────────────────────────────────────────────────────────────────────
+ *  • Hit-сфера центрирована, радиус ×3
+ *  • Tooltip coords через onMarkerHover
+ *  • Звёзды не дёргаются (в ExperienceSection)
+ *  • Файл теперь завершён: полный cleanup и JSX-return
+ */
+
+import { useEffect, useRef } from "react";
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 export interface Location {
   id: string;
@@ -13,221 +24,213 @@ export interface Location {
   role: string;
   period: string;
   achievements: string[];
-  type: 'work' | 'residence';
-  size: 'small' | 'medium' | 'large';
+  type: "work" | "residence";
+  size: "small" | "medium" | "large";
 }
 
-interface EarthGlobeProps {
+interface Props {
   locations: Location[];
-  onLocationHover: (id: string | null) => void;
-  hoveredLocation: string | null;
+  onLocationHover?: (id: string | null) => void;
+  onMarkerHover?: (info: { id: string; x: number; y: number } | null) => void;
+  hoveredLocation?: string | null;
 }
 
+/* ───────── constants ───────── */
+const EARTH_RADIUS = 0.5;
+const MARKER_BASE_R = EARTH_RADIUS * 1.04;
+const LON_OFFSET = -24; // глобальный поворот текстуры
+const HIT_FACTOR = 3;   // радиус hit-сферы > маркера
+
+const sizeFor = (s: Location["size"]) =>
+  s === "large" ? 0.015 : s === "medium" ? 0.009 : 0.006;
+const colorFor = (t: Location["type"]) => (t === "work" ? 0x06b6d4 : 0x8b5cf6);
+
+/* ───────────────────────────── */
 export function EarthGlobe({
   locations,
-  onLocationHover,
-  hoveredLocation,
-}: EarthGlobeProps) {
+  onLocationHover = () => {},
+  onMarkerHover,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // Hold onto our marker meshes so we can ray-cast only them:
   const markerMeshes = useRef<THREE.Mesh[]>([]);
-  const particlesRef = useRef<THREE.Points | null>(null);
-  const atmosphereRef = useRef<THREE.Mesh | null>(null);
-
-  // 🔧 CHANGED — keep these outside animate() so the ray updates every frame
+  const hitMeshes = useRef<THREE.Mesh[]>([]);
   const raycaster = useRef(new THREE.Raycaster()).current;
-  const mouse = useRef(new THREE.Vector2(-1000, -1000)).current; // start off-canvas
-  let lastHoveredId: string | null = null;                       // tracks state across frames
+  const mouse = useRef(new THREE.Vector2(-1000, -1000)).current;
+  let lastHoveredId: string | null = null;
+
+  const latLngToVec = (lat: number, lng: number, r: number) => {
+    const phi = THREE.MathUtils.degToRad(93 - lat);
+    const theta = THREE.MathUtils.degToRad(lng + LON_OFFSET);
+    return new THREE.Vector3(
+      r * Math.sin(phi) * Math.cos(theta),
+      r * Math.cos(phi),
+      -r * Math.sin(phi) * Math.sin(theta)
+    );
+  };
 
   useEffect(() => {
-    if (!containerRef.current) return;
-    const width = containerRef.current.clientWidth;
-    const height = containerRef.current.clientHeight;
+    const el = containerRef.current;
+    if (!el) return;
 
-    // Scene / Camera / Renderer
+    /* ───── scene / camera / renderer */
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(45, el.clientWidth / el.clientHeight, 0.1, 1000);
     camera.position.set(0, 0.5, 2.5);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(width, height);
-    containerRef.current.appendChild(renderer.domElement);
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(el.clientWidth, el.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    el.appendChild(renderer.domElement);
 
-    // OrbitControls
+    /* ───── controls */
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enablePan = false;
-    controls.enableZoom = true;
-    controls.minDistance = 1.5;
+    controls.minDistance = 1;
     controls.maxDistance = 3;
-    controls.minPolarAngle = Math.PI / 6;
-    controls.maxPolarAngle = Math.PI - Math.PI / 6;
     controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.2;
+    controls.autoRotateSpeed = 0.15;
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.rotateSpeed = 0.3;
 
-    // Lights
-    scene.add(new THREE.AmbientLight(0x555555));
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-    scene.add(dirLight);
+    /* ───── lights */
+    scene.add(new THREE.AmbientLight(0x404040, 0.8));
+    const dir = new THREE.DirectionalLight(0xffffff, 1);
+    dir.position.set(5, 3, 5);
+    scene.add(dir);
 
-    // Earth with water mask texture for continent layout
-    const earthGeo = new THREE.SphereGeometry(1, 64, 64);
+    /* ───── earth group */
+    const globe = new THREE.Group();
+    globe.rotation.y = -Math.PI / 2; // выставляем 0° меридиан вперёд
+    scene.add(globe);
 
-    // Simply load and use the classic world map texture
-    new THREE.TextureLoader().load(
-      'https://upload.wikimedia.org/wikipedia/commons/0/09/BlankMap-World-v2.png',
-      (texture) => {
-        const earthMat = new THREE.MeshStandardMaterial({
-          map: texture,
-          transparent: true,
-          metalness: 0.1,
-          roughness: 0.8,
-        });
-        const earthMesh = new THREE.Mesh(earthGeo, earthMat);
-        earthMesh.rotation.y = Math.PI;
-        scene.add(earthMesh);
-      },
-    );
-
-    // Atmospheric glow effect
-    const atmosphereGeo = new THREE.SphereGeometry(1.05, 64, 64);
-    const atmosphereMat = new THREE.MeshBasicMaterial({
-      color: 0x06b6d4,
-      transparent: true,
-      opacity: 0.1,
-      side: THREE.BackSide,
+    const earthMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      emissive: 0x050505,
+      metalness: 0.3,
+      roughness: 0.8,
     });
-    const atmosphere = new THREE.Mesh(atmosphereGeo, atmosphereMat);
-    scene.add(atmosphere);
-    atmosphereRef.current = atmosphere;
+    const earth = new THREE.Mesh(new THREE.SphereGeometry(EARTH_RADIUS, 64, 64), earthMat);
+    globe.add(earth);
+    new THREE.TextureLoader().load("https://upload.wikimedia.org/wikipedia/commons/0/09/BlankMap-World-v2.png", (t) => {
+      earthMat.map = t;
+      earthMat.needsUpdate = true;
+    });
 
-    
-    // Helper to convert lat/lng → sphere coords
-    const latLngTo3D = (lat: number, lng: number, r: number) => {
-        const φ = THREE.MathUtils.degToRad(lat);   // latitude  (+N / -S)
-        const λ = THREE.MathUtils.degToRad(lng);   // longitude (+E / -W)
-  
-        return {
-          x: r * Math.cos(φ) * Math.sin(λ),
-          y: r * Math.sin(φ),
-          z: r * Math.cos(φ) * Math.cos(λ),
-        };
-      };
+    /* ───── markers + hit-сферы */
+    markerMeshes.current = [];
+    hitMeshes.current = [];
 
-    // 🔧 CHANGED — slightly smaller markers
-    const getSize = (s: 'small' | 'medium' | 'large') =>
-      s === 'large' ? 0.06 : s === 'medium' ? 0.045 : 0.03;
-    const getColor = (t: 'work' | 'residence') =>
-      t === 'work' ? '#06b6d4' : '#8b5cf6';
+    locations.forEach((loc) => {
+      const pos = latLngToVec(loc.lat, loc.lng, MARKER_BASE_R);
 
-    // Create one sphere-mesh per location and store in markerMeshes
-    markerMeshes.current = locations.map((loc) => {
-      const pos = latLngTo3D(loc.lat, loc.lng, 1.02);
-      const color = new THREE.Color(getColor(loc.type));
-      const mesh = new THREE.Mesh(
-        new THREE.SphereGeometry(getSize(loc.size), 16, 16),
+      // видимый маркер
+      const marker = new THREE.Mesh(
+        new THREE.SphereGeometry(sizeFor(loc.size), 12, 12),
         new THREE.MeshStandardMaterial({
-          color,
-          emissive: color,
-          emissiveIntensity: 0.2,
-        }),
+          color: colorFor(loc.type),
+          emissive: colorFor(loc.type),
+          emissiveIntensity: 0.4,
+        })
       );
-      mesh.position.set(pos.x, pos.y, pos.z);
-      mesh.userData = { locationId: loc.id };
-      scene.add(mesh);
-      return mesh;
+      marker.position.copy(pos);
+      marker.userData.locationId = loc.id;
+      globe.add(marker);
+      markerMeshes.current.push(marker);
+
+      // hit-сфера
+      const hit = new THREE.Mesh(
+        new THREE.SphereGeometry(sizeFor(loc.size) * HIT_FACTOR, 8, 8),
+        new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 })
+      );
+      hit.position.copy(pos);
+      hit.userData.locationId = loc.id;
+      globe.add(hit);
+      hitMeshes.current.push(hit);
+
+      // glow для крупных
+      if (loc.size === "large") {
+        const halo = new THREE.Mesh(
+          new THREE.SphereGeometry(sizeFor(loc.size) * 1.6, 12, 12),
+          new THREE.MeshBasicMaterial({ color: colorFor(loc.type), transparent: true, opacity: 0.25 })
+        );
+        halo.position.copy(pos);
+        globe.add(halo);
+      }
     });
 
-    /* ─────────── Mouse / ray-cast handlers ─────────── */
-
-    // 🔧 CHANGED — update mouse vector only, leave casting to animate()
+    /* ───── mouse */
     const onMouseMove = (e: MouseEvent) => {
-      const rect = renderer.domElement.getBoundingClientRect();
-      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      const r = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+      mouse.y = -((e.clientY - r.top) / r.height) * 2 + 1;
     };
-    renderer.domElement.addEventListener('mousemove', onMouseMove);
-
-    // When leaving the canvas, push the cursor far away so we never get hits
-    renderer.domElement.addEventListener('mouseleave', () => {
+    renderer.domElement.addEventListener("mousemove", onMouseMove);
+    renderer.domElement.addEventListener("mouseleave", () => {
       mouse.set(-1000, -1000);
       onLocationHover(null);
+      onMarkerHover?.(null);
       lastHoveredId = null;
     });
 
-    /* ─────────── Animation loop ─────────── */
+    /* ───── loop */
     const animate = () => {
       requestAnimationFrame(animate);
-
-      // Rotate earth via controls.autoRotate
       controls.update();
 
-      // Update daylight direction
-      const now = new Date();
-      const hours =
-        now.getUTCHours() +
-        now.getUTCMinutes() / 60 +
-        now.getUTCSeconds() / 3600;
-      const theta = (hours / 24) * Math.PI * 2;
-      const dist = 100;
-      dirLight.position.set(dist * Math.cos(theta), 0, dist * Math.sin(theta));
-
-      // Animate particles
-      if (particlesRef.current) {
-        particlesRef.current.rotation.y += 0.001;
-        particlesRef.current.rotation.x += 0.0005;
-      }
-
-      // Pulse atmosphere
-      if (atmosphereRef.current) {
-        const time = Date.now() * 0.001;
-        const atmosphereMat = atmosphereRef.current
-          .material as THREE.MeshBasicMaterial;
-        atmosphereMat.opacity = 0.1 + Math.sin(time * 2) * 0.05;
-      }
-
-      /* ----- 🔧 CHANGED — do ray-cast every frame ----- */
       raycaster.setFromCamera(mouse, camera);
-      const hits = raycaster.intersectObjects(markerMeshes.current, false);
-      const hoveredId = hits[0]?.object.userData.locationId ?? null;
+      const hit = raycaster.intersectObjects(hitMeshes.current, false)[0];
+      const hoveredId = hit?.object.userData.locationId ?? null;
 
       if (hoveredId !== lastHoveredId) {
-        onLocationHover(hoveredId);
         lastHoveredId = hoveredId;
+        onLocationHover(hoveredId);
       }
 
+      if (onMarkerHover) {
+        if (hit) {
+          const vec = (hit.object as THREE.Object3D).getWorldPosition(new THREE.Vector3());
+          vec.project(camera);
+          const rect = renderer.domElement.getBoundingClientRect();
+          const x = ((vec.x + 1) / 2) * rect.width + rect.left;
+          const y = (-(vec.y - 1) / 2) * rect.height + rect.top;
+          onMarkerHover({ id: hoveredId!, x, y });
+        } else {
+          onMarkerHover(null);
+        }
+      }
+
+      const t = Date.now() * 0.006;
       markerMeshes.current.forEach((m) => {
         const mat = m.material as THREE.MeshStandardMaterial;
-        mat.emissiveIntensity =
-          m.userData.locationId === hoveredId ? 0.5 : 0.2;
+        const active = m.userData.locationId === hoveredId;
+        mat.emissiveIntensity = active ? 1 : 0.4;
+        m.scale.setScalar(1 + (active ? Math.sin(t) * 0.25 : 0));
       });
 
       renderer.render(scene, camera);
     };
     animate();
 
-    /* ─────────── Resize & cleanup ─────────── */
+    /* ───── resize & cleanup */
     const onResize = () => {
-      const w = containerRef.current!.clientWidth;
-      const h = containerRef.current!.clientHeight;
+      if (!containerRef.current) return;
+      const { clientWidth: w, clientHeight: h } = containerRef.current;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
     };
-    window.addEventListener('resize', onResize);
+    window.addEventListener("resize", onResize);
 
     return () => {
-      window.removeEventListener('resize', onResize);
-      renderer.domElement.removeEventListener('mousemove', onMouseMove);
-      if (containerRef.current && renderer.domElement.parentNode) {
+      window.removeEventListener("resize", onResize);
+      renderer.domElement.removeEventListener("mousemove", onMouseMove);
+      if (containerRef.current?.contains(renderer.domElement)) {
         containerRef.current.removeChild(renderer.domElement);
       }
+      controls.dispose();
       renderer.dispose();
     };
-  }, [locations, onLocationHover]);
+  }, [locations, onLocationHover, onMarkerHover]);
 
   return <div ref={containerRef} className="w-full h-full" />;
 }

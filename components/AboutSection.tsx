@@ -86,7 +86,7 @@ export function AboutSection() {
               <p className="text-lg leading-relaxed">
                 Award-winning Senior Engineering Manager with over <span className="text-cyber-cyan font-semibold">9+ years</span> of experience 
                 leading high-impact engineering teams and delivering mission-critical systems for 
-                <span className="text-cyber-violet font-semibold"> global clients</span> 
+                <span className="text-cyber-violet font-semibold"> global clients </span> 
                 including <span className="text-cyber-cyan font-semibold">Visa, Apple, and Citibank</span>.
               </p>
               
