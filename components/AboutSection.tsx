@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Code2, Database, Cloud, Cpu, GitBranch, Shield } from "lucide-react";
 
-const keywords = ["ARCHITECT", "LEADER", "ENGINEER"];
+const keywords = ["PRODUCT", "ENGINEERING", "LEADERSHIP"];
 
 const techStack = [
   { name: "Java", icon: Code2, color: "cyber-violet" },
@@ -84,15 +84,12 @@ export function AboutSection() {
           >
             <div className="space-y-6 text-gray-300">
               <p className="text-lg leading-relaxed">
-                Award-winning Senior Engineering Manager with over <span className="text-cyber-cyan font-semibold">9+ years</span> of experience 
-                leading high-impact engineering teams and delivering mission-critical systems for 
-                <span className="text-cyber-violet font-semibold"> global clients </span> 
-                including <span className="text-cyber-cyan font-semibold">Visa, Apple, and Citibank</span>.
+              Award-winning Product & Engineering Leader with over <span className="text-cyber-cyan font-semibold">9+ years</span> of experience delivering enterprise-scale platforms and managing high-performing global teams for clients including <span className="text-cyber-violet font-semibold">bp, Visa, Apple, and Citibank</span>. 
               </p>
               
               <p className="text-lg leading-relaxed">
-                Currently serving as Senior Engineering Manager and Regional Technical Lead for Germany at bp, 
-                leading engineering efforts across the Germany region for digital mobility platforms and managing 
+              Currently serving as Head of Loyalty Platform at bp (Mobility & Convenience), responsible for global Product, Engineering, and Operations delivery. 
+              I lead bp’s Loyalty Platform strategy and execution across the US, Europe, Australia–New Zealand, South Africa, and Mexico — overseeing architecture, product roadmap, vendor governance, and rollout success.
                 <span className="text-cyber-cyan font-semibold"> 40+ indirect contributors</span> across multiple products and teams.
               </p>
 

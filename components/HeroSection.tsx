@@ -49,12 +49,12 @@ export function HeroSection() {
             </h1>
             
             <div className="border-l-2 border-cyber-violet pl-6 space-y-2">
-              <p className="text-xl lg:text-2xl text-gray-300 font-space-grotesk uppercase tracking-wide">
-                 Senior Engineering Manager
-              </p>
-              <p className="text-lg lg:text-xl text-gray-400 font-space-grotesk uppercase tracking-wide">
-                Regional Tech Lead Germany
-              </p>
+            <p className="text-xl lg:text-2xl text-gray-300 font-space-grotesk uppercase tracking-wide">
+              Head of Loyalty Platform Technology
+            </p>
+            <p className="text-lg lg:text-xl text-gray-400 font-space-grotesk uppercase tracking-wide">
+              Product • Engineering • Operations - Global Scope
+            </p>
             </div>
           </motion.div>
 
@@ -75,7 +75,7 @@ export function HeroSection() {
             transition={{ duration: 1, delay: 1.5 }}
           >
             <div className="w-3 h-3 bg-cyber-cyan glow-pulse" />
-            <span className="text-cyber-cyan uppercase tracking-wide">Available for collaboration</span>
+            <span className="text-cyber-cyan uppercase tracking-wide">Driving Global Loyalty Transformation</span>
           </motion.div>
         </motion.div>
 
